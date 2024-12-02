@@ -1,4 +1,5 @@
-(use-modules (ice-9 peg)
+(use-modules (statprof)
+             (ice-9 peg)
              (srfi srfi-1)
              (srfi srfi-26)
              (ice-9 receive)
@@ -49,9 +50,10 @@
 
 (define part-1-data (get-string-all (open-file "./1.txt" "r")))
 
-(receive [l1 l2]
-    (get-lists part-1-data)
-  (get-diffs l1 l2))
+(statprof (lambda ()
+            (receive [l1 l2]
+                (get-lists part-1-data)
+              (get-diffs l1 l2))))
 
 (define (get-sim-score l1 l2)
   (apply + (map * l1 (map (lambda (a)
@@ -61,6 +63,7 @@
     (get-lists example-data)
   (get-sim-score l1 l2))
 
-(receive [l1 l2]
-    (get-lists part-1-data)
-  (get-sim-score l1 l2))
+(statprof (lambda ()
+            (receive [l1 l2]
+                (get-lists part-1-data)
+              (get-sim-score l1 l2))))

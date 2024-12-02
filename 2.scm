@@ -1,4 +1,5 @@
-(use-modules (ice-9 peg)
+(use-modules (statprof)
+             (ice-9 peg)
              (srfi srfi-1)
              (srfi srfi-26)
              (ice-9 receive)
@@ -72,3 +73,9 @@
                     (or (is-safe-with-dampener in-ascending report)
                         (is-safe-with-dampener in-descending report)))
                   (get-lists dataset))))
+
+(statprof (lambda ()
+            (solve-2.1 part-2-data)))
+
+(statprof (lambda ()
+            (solve-2.2 part-2-data)))
