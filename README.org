@@ -4,3 +4,12 @@
 Using Guile Scheme, mostly because =(ice-9 peg)= is a great parsing expression
 library that lets me define grammars in successive s-expressions instead of an
 arcane DSL and is part of the language library.
+
+** Guile Modules used
+
+- [[https://www.gnu.org/software/guile/manual/html_node/PEG-Parsing.html][(ice-9 peg)]]
+- [[https://www.gnu.org/software/guile/manual/html_node/Pattern-Matching.html][(ice-9 match)]]
+- [[https://www.gnu.org/software/guile/manual/html_node/Textual-I_002fO.html][(ice-9 textual-ports)]]
+- [[https://www.gnu.org/software/guile/manual/html_node/SRFI_002d1.html][SRFI-1]]
+- [[https://www.gnu.org/software/guile/manual/html_node/SRFI_002d26.html][SRFI-26]]
+- [[https://www.gnu.org/software/guile/manual/html_node/Statprof.html][(statprof)]]
