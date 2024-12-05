@@ -91,13 +91,12 @@
     (values order-table update-lists)))
 
 (define (sort-page-order order-table page-list)
-  (reverse
-   (sort
-    page-list
-    (lambda (page-2 page-1)
-      (let* ([page-1-record (hash-ref order-table page-1)]
-             [should-be-after (get-next-pages page-1-record)])
-        (member page-2 should-be-after))))))
+  (sort
+   page-list
+   (lambda (page-2 page-1)
+     (let* ([page-2-record (hash-ref order-table page-2)]
+            [should-be-after (get-next-pages page-2-record)])
+       (member page-1 should-be-after)))))
 
 (define (solve-5 dataset)
   (statprof
