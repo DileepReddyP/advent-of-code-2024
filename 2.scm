@@ -14,7 +14,7 @@
 1 3 6 7 9
 ")
 (define part-2-data
-  (get-string-all (open-file "./2.txt" "r")))
+  (call-with-input-file "./2.txt" get-string-all))
 
 (define-peg-pattern dataset body
   (* dataline))

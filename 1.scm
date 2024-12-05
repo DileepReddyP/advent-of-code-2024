@@ -48,7 +48,7 @@
   (get-diffs l1 l2))
 
 
-(define part-1-data (get-string-all (open-file "./1.txt" "r")))
+(define part-1-data (call-with-input-file "./1.txt" get-string-all))
 
 (statprof (lambda ()
             (receive [l1 l2]

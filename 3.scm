@@ -10,7 +10,7 @@
   "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))
 ")
 (define part-3-data
-  (get-string-all (open-file "./3.txt" "r")))
+  (call-with-input-file "./3.txt" get-string-all))
 
 (define-peg-pattern dataset body
   (* dataline))

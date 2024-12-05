@@ -21,7 +21,7 @@ MXMXAXMASX
 
 
 (define part-4-data
-  (get-string-all (open-file "./4.txt" "r")))
+  (call-with-input-file "./4.txt" get-string-all))
 
 (define-peg-pattern dataset body
   (* dataline))
@@ -62,14 +62,14 @@ MXMXAXMASX
             dir-list))))
 
 (define (solve-4.1 dataset)
-  (let* ([data-array (parse-data dataset)]
-         [solution-array (apply (cut make-array #f <> <>) (array-dimensions data-array))]
-         [xmas-search (lambda (i j)
-                        (match (array-ref data-array i j)
-                          ['x (check-xmas data-array i j)]
-                          [_ 0]))])
-    (statprof
-     (lambda ()
+  (statprof
+   (lambda ()
+     (let* ([data-array (parse-data dataset)]
+            [solution-array (apply (cut make-array #f <> <>) (array-dimensions data-array))]
+            [xmas-search (lambda (i j)
+                           (match (array-ref data-array i j)
+                             ['x (check-xmas data-array i j)]
+                             [_ 0]))])
        (array-index-map! solution-array xmas-search)
        (apply +
               (apply append
@@ -89,14 +89,14 @@ MXMXAXMASX
       0))
 
 (define (solve-4.2 dataset)
-  (let* ([data-array (parse-data dataset)]
-         [solution-array (apply (cut make-array #f <> <>) (array-dimensions data-array))]
-         [x-mas-search (lambda (i j)
-                         (match (array-ref data-array i j)
-                           ['a (check-x-mas data-array i j)]
-                           [_ 0]))])
-    (statprof
-     (lambda ()
+  (statprof
+   (lambda ()
+     (let* ([data-array (parse-data dataset)]
+            [solution-array (apply (cut make-array #f <> <>) (array-dimensions data-array))]
+            [x-mas-search (lambda (i j)
+                            (match (array-ref data-array i j)
+                              ['a (check-x-mas data-array i j)]
+                              [_ 0]))])
        (array-index-map! solution-array x-mas-search)
        (apply +
               (apply append
