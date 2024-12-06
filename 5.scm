@@ -123,3 +123,36 @@
         (apply + (map (lambda (l) (list-ref l (/ (1- (length l)) 2))) ols))
         (apply + (map (lambda (l) (list-ref l (/ (1- (length l)) 2)))
                       (map (cut sort-page-order order-table <>) not-ols))))))))
+
+;; so much simpler logically, takes twice runtime wise
+(define (split-page-order-and-lists-simple data)
+  (let ([order-table '()]
+        [update-lists '()])
+    (for-each
+     (match-lambda
+       [('order-rule ('page p) ('page n))
+        (set! order-table
+              (cons `(,(string->number p) . ,(string->number n)) order-table))]
+       [('update-list ('page pages) ..1)
+        (set! update-lists (cons (map string->number pages) update-lists))])
+     data)
+    (values order-table update-lists)))
+
+
+(define (page-order-sorter order-table)
+  (lambda (page-2 page-1)
+    (member `(,page-2 . ,page-1) order-table)))
+
+(define (solve-5-simple dataset)
+  (statprof
+   (lambda ()
+     (let* ([parsed-data (parse-data dataset)]
+            [order-table update-lists (split-page-order-and-lists-simple parsed-data)]
+            [ols not-ols (partition
+                          (cut sorted? <> (page-order-sorter order-table))
+                          update-lists)]
+            [find-middle (lambda (l) (list-ref l (/ (1- (length l)) 2)))])
+       (values
+        (apply + (map find-middle ols))
+        (apply + (map find-middle
+                      (map (cut sort <> (page-order-sorter order-table)) not-ols))))))))
