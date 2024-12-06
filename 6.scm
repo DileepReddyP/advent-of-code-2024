@@ -39,27 +39,25 @@
     (left . up)))
 
 (define (parse-data data)
-  (let* ([list-of-strings (string-split
-                           (substring data 0 (1- (string-length data)))
-                           #\newline)]
+  (let* ([list-of-strings (string-split (substring data 0 (1- (string-length data)))
+                                        #\newline)]
          [start-x '()]
          [start-y '()]
          [lab-array (list-transduce
-                     (compose
-                      (tenumerate 0)
-                      (tmap (match-lambda
-                              [(i . row-string)
-                               (let ([row-list '()])
-                                 (string-for-each-index
-                                  (lambda (j)
-                                    (let ([this-char (string-ref row-string j)])
-                                      (when (equal? this-char  #\^)
-                                        (set! start-x i)
-                                        (set! start-y j))
-                                      (set! row-list (cons this-char row-list))))
-                                  row-string)
-                                 row-list)]))
-                      (tmap reverse))
+                     (compose (tenumerate 0)
+                              (tmap (match-lambda
+                                      [(i . row-string)
+                                       (let ([row-list '()])
+                                         (string-for-each-index
+                                          (lambda (j)
+                                            (let ([this-char (string-ref row-string j)])
+                                              (when (equal? this-char  #\^)
+                                                (set! start-x i)
+                                                (set! start-y j))
+                                              (set! row-list (cons this-char row-list))))
+                                          row-string)
+                                         row-list)]))
+                              (tmap reverse))
                      rcons
                      list-of-strings)])
     (values (list->array 2 lab-array) start-x start-y)))
@@ -123,24 +121,23 @@
    (lambda ()
      (let* ([lab-array start-x start-y (parse-data dataset)]
             [unique-steps (make-hash-table)]
-            [valid-path-unique-steps 0]
             [no-of-blocks 0])
-       (guard-path
-        start-x start-y 'up lab-array unique-steps)
-       (hash-for-each
-        (lambda (k v)
-          (let ([i (car k)]
-                [j (cdr k)]
-                [new-lab-array
-                 (apply (cut make-array #f <> <>) (array-dimensions lab-array))]
-                [unique-steps-with-dir (make-hash-table)])
-            (array-copy! lab-array new-lab-array)
-            (array-set! new-lab-array #\# i j)
-            (hash-set! unique-steps-with-dir `((,start-x . ,start-y) . 'up) #t)
-            (if (guard-path-loop-detect
-                 start-x start-y 'up new-lab-array unique-steps-with-dir)
-                (set! no-of-blocks (1+ no-of-blocks)))))
-        unique-steps)
-       (values (hash-count (const #t) unique-steps)
-               no-of-blocks)))))
+       (begin
+         (guard-path
+          start-x start-y 'up lab-array unique-steps)
+         (hash-for-each
+          (lambda (k v)
+            (match-let ([(i . j) k]
+                        [new-lab-array (apply (cut make-array #f <> <>)
+                                              (array-dimensions lab-array))]
+                        [unique-steps-with-dir (make-hash-table)])
+              (array-copy! lab-array new-lab-array)
+              (array-set! new-lab-array #\# i j)
+              (hash-set! unique-steps-with-dir `((,start-x . ,start-y) . 'up) #t)
+              (if (guard-path-loop-detect
+                   start-x start-y 'up new-lab-array unique-steps-with-dir)
+                  (set! no-of-blocks (1+ no-of-blocks)))))
+          unique-steps)
+         (values (hash-count (const #t) unique-steps)
+                 no-of-blocks))))))
 
