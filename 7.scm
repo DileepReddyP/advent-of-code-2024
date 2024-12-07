@@ -37,22 +37,22 @@
 (define (parse-data data)
   (peg:tree (match-pattern dataset data)))
 
-(define (2-func-combinations n)
+(define (2-func-permutations n)
   (match n
     [0 '(())]
     [n (apply append (map (lambda (l)
                             `(,(cons + l) ,(cons * l)))
-                          (2-func-combinations (1- n))))]))
+                          (2-func-permutations (1- n))))]))
 
 (define (|| a b)
   (string->number (string-append (number->string a) (number->string b))))
 
-(define (3-func-combinations n)
+(define (3-func-permutations n)
   (match n
     [0 '(())]
     [n (apply append (map (lambda (l)
                             `(,(cons + l) ,(cons * l) ,(cons || l)))
-                          (3-func-combinations (1- n))))]))
+                          (3-func-permutations (1- n))))]))
 
 (define (apply-ops nums ops)
   (fold (lambda (ops n acc)
@@ -60,13 +60,13 @@
         (car nums) ops (cdr nums)))
 
 (define (find-valid-equations three?)
-  (let ([combinator (if three? 3-func-combinations 2-func-combinations)])
+  (let ([permuter (if three? 3-func-permutations 2-func-permutations)])
     (lambda (calibration)
       (match calibration
         [(('num s-r) (('num s-vals) ..1))
          (let* ([res (string->number s-r)]
                 [vals (map string->number s-vals)]
-                [ops (combinator (1- (length vals)))]
+                [ops (permuter (1- (length vals)))]
                 [possible-res (map (cut apply-ops vals <>) ops)])
            (if (any (cut = res <>) possible-res)
                res
