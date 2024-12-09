@@ -12,4 +12,6 @@ arcane DSL and is part of the language library.
 - [[https://www.gnu.org/software/guile/manual/html_node/Textual-I_002fO.html][(ice-9 textual-ports)]]
 - [[https://www.gnu.org/software/guile/manual/html_node/SRFI_002d1.html][SRFI-1]]
 - [[https://www.gnu.org/software/guile/manual/html_node/SRFI_002d26.html][SRFI-26]]
+- [[https://srfi.schemers.org/srfi-42/srfi-42.html][SRFI-42]]
+- [[https://www.gnu.org/software/guile/manual/html_node/SRFI_002d71.html][SRFI-71]]
 - [[https://www.gnu.org/software/guile/manual/html_node/Statprof.html][(statprof)]]

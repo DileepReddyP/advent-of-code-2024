@@ -3,6 +3,7 @@
   #:use-module (ice-9 match)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-26)
+  #:use-module (srfi srfi-42)
   #:use-module (srfi srfi-71)
   #:use-module (ice-9 textual-ports)
   #:export (create-grid-dict
@@ -12,19 +13,23 @@
             array-ref-safe
             list-permutations-with-repeats))
 
+;; (srfi srfi-1) lists
+;; (srfi srfi-9) records
+;; (srfi srfi-26) cut
+;; (srfi srfi-41) streams
+;; (srfi srfi-42) eager comprehensions
+;; (srfi srfi-43) vectors
+;; (srfi srfi-71) let multi-value bindings
+;; (srfi srfi-171) transducers
+
 (define (create-grid-dict input-string)
   (let ([grid-dict (make-hash-table)]
         [string-list (remove string-null? (string-split input-string #\newline))])
-    (for-each
-     (lambda (i)
-       (let ([this-string (list-ref string-list i)])
-         (string-for-each-index
-          (lambda (j)
-            (hash-set! grid-dict
-                       (make-rectangular (exact->inexact i) (exact->inexact j))
-                       (string-ref this-string j)))
-          this-string)))
-     (iota (length string-list)))
+    (do-ec (:list s (index i) string-list)
+           (:string c (index j) s)
+           (hash-set! grid-dict
+                      (make-rectangular (exact->inexact i) (exact->inexact j))
+                      c))
     grid-dict))
 
 (define (grid-dict-ref grid-dict i j)
@@ -48,3 +53,10 @@
     [n (apply append (map (lambda (p)
                             (map (cut cons <> p) lst))
                           (list-permutations-with-repeats lst (1- n))))]))
+
+;; example :of do generator
+(define (fibonacci n)
+  (list-ec (:do ([i 0] [a 0] [b 1]) ; bindings
+                (< i n)             ; condition
+                ((1+ i) b (+ a b))) ; re-binding
+           a))
