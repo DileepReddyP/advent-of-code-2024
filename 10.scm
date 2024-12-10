@@ -38,16 +38,14 @@
   (cond
    [(and visited (hash-ref visited co-ord)) 0]
    [(= current-elevation 9) (begin
-                              (when visited
-                                (hash-set! visited co-ord #t))
+                              (and visited (hash-set! visited co-ord #t))
                               1)]
    [else (let ([candidate-list (map (cut + co-ord <>) grid-directions)]
                [next-elevation (1+ current-elevation)])
-           (when visited
-             (hash-set! visited co-ord #t))
+           (and visited (hash-set! visited co-ord #t))
            (sum-ec (:list c candidate-list)
-                   (and (hash-ref topo-map c)
-                        (= (hash-ref topo-map c) next-elevation))
+                   (:let ce (hash-ref topo-map c))
+                   (and ce (= ce next-elevation))
                    (trail-search topo-map c next-elevation visited)))]))
 
 (define (solve-10 dataset)

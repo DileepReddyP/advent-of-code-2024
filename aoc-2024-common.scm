@@ -45,10 +45,10 @@
        (iota (length report))))
 
 (define grid-directions-with-diagonals
-  '(1 0+1i 1+1i 1-1i -1 -1i -1+1i -1-1i))
+  '(1.0+0.0i 1.0+1.0i 0.0+1.0i -1.0+1.0i -1.0+0.0i -1.0-1.0i 0.0-1.0i 1.0-1.0i))
 
 (define grid-directions
-  '(1.0 0.0+1.0i -1.0 -1.0i))
+  '(1.0+0.0i 0.0+1.0i -1.0+0.0i 0.0-1.0i))
 
 (define (array-ref-safe arr i j)
   (and (array-in-bounds? arr i j)
