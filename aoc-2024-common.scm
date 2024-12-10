@@ -5,10 +5,14 @@
   #:use-module (srfi srfi-26)
   #:use-module (srfi srfi-42)
   #:use-module (srfi srfi-71)
+  #:use-module (ice-9 hash-table)
   #:use-module (ice-9 textual-ports)
   #:export (create-grid-dict
             grid-dict-ref
-            possible-grid-directions
+            grid-directions
+            grid-directions-with-diagonals
+            copy-hash-table
+            char->number
             list-combinations
             array-ref-safe
             list-permutations-with-repeats))
@@ -40,12 +44,21 @@
          (append (list-head report i) (list-tail report (1+ i))))
        (iota (length report))))
 
-(define possible-grid-directions
-  (circular-list 1 0+1i 1+1i 1-1i -1 -1i -1+1i -1-1i))
+(define grid-directions-with-diagonals
+  '(1 0+1i 1+1i 1-1i -1 -1i -1+1i -1-1i))
+
+(define grid-directions
+  '(1.0 0.0+1.0i -1.0 -1.0i))
 
 (define (array-ref-safe arr i j)
   (and (array-in-bounds? arr i j)
        (array-ref arr i j)))
+
+(define (char->number c)
+  (- (char->integer c) 48))
+
+(define (copy-hash-table hash-table)
+  (alist->hash-table (hash-map->list cons hash-table)))
 
 (define (list-permutations-with-repeats lst n)
   (match n
