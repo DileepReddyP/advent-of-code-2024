@@ -39,26 +39,32 @@
 (define (grid-dict-ref grid-dict i j)
   (hash-ref grid-dict (make-rectangular i j)))
 
-(define (list-combinations report)
-  (map (lambda (i)
-         (append (list-head report i) (list-tail report (1+ i))))
-       (iota (length report))))
-
 (define grid-directions-with-diagonals
   '(1.0+0.0i 1.0+1.0i 0.0+1.0i -1.0+1.0i -1.0+0.0i -1.0-1.0i 0.0-1.0i 1.0-1.0i))
 
 (define grid-directions
   '(1.0+0.0i 0.0+1.0i -1.0+0.0i 0.0-1.0i))
 
+(define (complex< a b)
+  (let ([ra ia (values (real-part a) (imag-part a))]
+        [rb ib (values (real-part b) (imag-part b))])
+    (or (< ra rb)
+        (and (= ra rb) (< ia ib)))))
+
 (define (array-ref-safe arr i j)
   (and (array-in-bounds? arr i j)
        (array-ref arr i j)))
 
+(define (copy-hash-table hash-table)
+  (alist->hash-table (hash-map->list cons hash-table)))
+
 (define (char->number c)
   (- (char->integer c) 48))
 
-(define (copy-hash-table hash-table)
-  (alist->hash-table (hash-map->list cons hash-table)))
+(define (list-combinations report)
+  (map (lambda (i)
+         (append (list-head report i) (list-tail report (1+ i))))
+       (iota (length report))))
 
 (define (list-permutations-with-repeats lst n)
   (match n
@@ -66,6 +72,17 @@
     [n (apply append (map (lambda (p)
                             (map (cut cons <> p) lst))
                           (list-permutations-with-repeats lst (1- n))))]))
+
+(define (cache-proc proc)
+  (let ([cache (make-hash-table)])
+    (lambda args
+      (let ([cached (hash-ref cache args)])
+        (if (not cached)
+            (begin
+              (let ([result (apply proc args)])
+                (hash-set! cache args result)
+                result))
+            cached)))))
 
 ;; example :of do generator
 (define (fibonacci n)
