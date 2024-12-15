@@ -10,6 +10,7 @@
   #:export (create-grid-dict
             grid-dict-ref
             grid-directions
+            display-grid-dict
             grid-directions-with-diagonals
             copy-hash-table
             char->number
@@ -44,6 +45,14 @@
 
 (define grid-directions
   '(1.0+0.0i 0.0+1.0i -1.0+0.0i 0.0-1.0i))
+
+(define (display-grid-dict grid-dict h w)
+  (do-ec (:range i h)
+         (begin
+           (do-ec (:range j w)
+                  (display (hash-ref grid-dict (make-rectangular (exact->inexact i)
+                                                                 (exact->inexact j)))))
+           (newline))))
 
 (define (complex< a b)
   (let ([ra ia (values (real-part a) (imag-part a))]
