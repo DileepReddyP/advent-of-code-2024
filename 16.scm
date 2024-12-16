@@ -73,65 +73,52 @@
     [(($ <pq-node> _ _ c1 _) ($ <pq-node> _ _ c2 _)) (< c1 c2)]))
 
 (define (deer-A* maze-map start-pos end-pos)
-  (let ([g-score (make-hash-table)])
-    (hash-set! g-score start-pos 0)
+  (let ([g-score (make-hash-table)]
+        [min-cost (inf)]
+        [unique-paths '()])
+    (hash-set! g-score `(,start-pos . east) 0)
     (let loop ([pq `(,(make-pq-node start-pos 'east (manhattan- start-pos end-pos) '()))])
-      (if (positive? (length pq))
-          (let* ([current rest (car+cdr (sort! pq node-cost<))]
-                 [current-pos (pq-pos current)]
-                 [current-cost (pq-f-score current)]
-                 [current-dir (pq-dir current)]
-                 [current-predecessors (pq-predecessors current)]
-                 [current-g-score (hash-ref g-score current-pos (inf))]
-                 [next-predecessors (cons current-pos current-predecessors)]
-                 [turns (assoc-ref possible-turns current-dir)])
-            (if (= current-pos end-pos)
-                (values current-cost next-predecessors)
-                (begin
-                  (do-ec (:list t turns)
-                         (:let d (assoc-ref direction-alist t))
-                         (:let next-pos (+ current-pos d))
-                         (:let tent-g-score (+ current-g-score
-                                               (if (eqv? t current-dir) 1 1001)))
-                         (and (not (char=? (hash-ref maze-map next-pos) #\#))
-                              (<= tent-g-score (hash-ref g-score next-pos (inf))))
-                         (begin
-                           (hash-set! g-score next-pos tent-g-score)
-                           (set! rest (cons (make-pq-node next-pos
-                                                          t
-                                                          (+ tent-g-score
-                                                             (manhattan- next-pos
-                                                                         end-pos))
-                                                          next-predecessors)
-                                            rest))))
-                  (loop rest))))
-          (values (inf) #f)))))
+      (when (positive? (length pq))
+        (let* ([current rest (car+cdr (sort! pq node-cost<))]
+               [current-pos (pq-pos current)]
+               [current-cost (pq-f-score current)]
+               [current-dir (pq-dir current)]
+               [current-cons `(,current-pos . ,current-dir)]
+               [current-predecessors (pq-predecessors current)]
+               [current-g-score (hash-ref g-score current-cons (inf))]
+               [next-predecessors (cons current-pos current-predecessors)]
+               [turns (assoc-ref possible-turns current-dir)])
+          (when (<= current-cost min-cost)
+            (when (= current-pos end-pos)
+              (set! min-cost current-cost)
+              (set! unique-paths (cons next-predecessors unique-paths))
+              (loop rest))
+            (do-ec (:list t turns)
+                   (:let d (assoc-ref direction-alist t))
+                   (:let next-pos (+ current-pos d))
+                   (:let next-cons `(,next-pos . ,t))
+                   (:let tent-g-score (+ current-g-score
+                                         (if (eqv? t current-dir) 1 1001)))
+                   (and (not (char=? (hash-ref maze-map next-pos) #\#))
+                        (<= tent-g-score (hash-ref g-score next-cons (inf))))
+                   (begin
+                     (hash-set! g-score next-cons tent-g-score)
+                     (set! rest (cons (make-pq-node next-pos
+                                                    t
+                                                    (+ tent-g-score
+                                                       (manhattan- next-pos
+                                                                   end-pos))
+                                                    next-predecessors)
+                                      rest))))
+            (loop rest)))))
+    (values min-cost (count-common unique-paths))))
 
 (define (count-common unique-tiles)
   (length (apply (cut lset-union = <...>) unique-tiles)))
 
-(define (solve-16.1 dataset)
+(define (solve-16 dataset)
   (statprof
    (lambda ()
      (let* ([maze-map (parse-data dataset)]
-            [start-pos end-pos (maze-start-and-end maze-map)]
-            [minimum-maze _ (deer-A* maze-map start-pos end-pos)])
-       minimum-maze))))
-
-(define (solve-16.2 dataset)
-  (statprof
-   (lambda ()
-     (let* ([maze-map (parse-data dataset)]
-            [start-pos end-pos (maze-start-and-end maze-map)]
-            [minimum-maze path-tiles (deer-A* maze-map start-pos end-pos)]
-            [unique-tiles (list path-tiles)])
-       (do-ec (:list tile (index i) path-tiles)
-              (not (or (= tile start-pos) (= tile end-pos)))
-              (:let new-map (copy-hash-table maze-map))
-              (begin
-                (format #t "checking ~a\n" i)
-                (hash-set! new-map tile #\#)
-                (let ([new-min new-tiles (deer-A* new-map start-pos end-pos)])
-                  (when (= new-min minimum-maze)
-                    (set! unique-tiles (cons new-tiles unique-tiles))))))
-       (count-common unique-tiles)))))
+            [start-pos end-pos (maze-start-and-end maze-map)])
+       (deer-A* maze-map start-pos end-pos)))))
