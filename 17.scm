@@ -174,7 +174,7 @@ Program: 0,1,5,4,3,0
     [(_) (first-ec #f (:integers a)
                    (if (a->target-o/p? a target-o/p))
                    a)]
-    [(_ . rest) (* 8 (find-a-for-target rest))]))
+    [(_ . rest) (ash (find-a-for-target rest) 3)]))
 
 (define (solve-17.2)
   (statprof
