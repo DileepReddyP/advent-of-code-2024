@@ -16,6 +16,7 @@
             char->number
             list-combinations
             array-ref-safe
+            define-cached
             list-permutations-with-repeats))
 
 ;; (srfi srfi-1) lists
@@ -82,16 +83,20 @@
                             (map (cut cons <> p) lst))
                           (list-permutations-with-repeats lst (1- n))))]))
 
-(define (cache-proc proc)
-  (let ([cache (make-hash-table)])
-    (lambda args
-      (let ([cached (hash-ref cache args)])
-        (if (not cached)
-            (begin
-              (let ([result (apply proc args)])
-                (hash-set! cache args result)
-                result))
-            cached)))))
+(define-syntax define-cached
+  (syntax-rules ()
+    ((_ (name arg ...) body body* ...)
+     (define name
+       (let ([cache (make-hash-table)]
+             [proc (lambda (arg ...) body body* ...)])
+         (lambda (arg ...)
+           (let* ([args-list (list arg ...)]
+                  [cached (hash-ref cache args-list)])
+             (if (not cached)
+                 (let ([result (apply proc args-list)])
+                   (hash-set! cache args-list result)
+                   result)
+                 cached))))))))
 
 ;; example :of do generator
 (define (fibonacci n)
