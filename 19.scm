@@ -26,35 +26,27 @@ bbrgwb
   (call-with-input-file "./19.txt" get-string-all))
 
 (define-peg-pattern dataset body
-  (* dataline))
-(define-peg-pattern dataline body
-  (+ (or (ignore ",") patterns ws)))
+  (+ (or (ignore ",") patterns (ignore " "))))
 (define-peg-pattern patterns all
-  (+ (range #\a #\z)))
-(define-peg-pattern ws none
-  " ")
+  (+ (or "w" "u" "b" "r" "g")))
 
-(define patterns-to-list
-  (match-lambda
-    [(('patterns p) ..1) p]))
-
-(define-cached (find-pattern-match towel patterns-list)
-  (if (zero? (string-length towel))
+(define-cached (find-pattern-match design patterns-list)
+  (if (zero? (string-length design))
       1
       (sum-ec (:list p patterns-list)
-              (if (string-prefix? p towel))
-              (find-pattern-match (substring towel (string-length p)) patterns-list))))
+              (if (string-prefix? p design))
+              (find-pattern-match (substring design (string-length p)) patterns-list))))
 
 (define (solve-19 data)
   (statprof
    (lambda ()
      (let* ([split-str (string-split (string-replace-substring data "\n\n" "*") #\*)]
-            [pattern-str to-match-str (car+cdr split-str)]
-            [to-match-list (remove string-null? (string-split (car to-match-str) #\newline))]
-            [pattern-list (patterns-to-list (peg:tree (match-pattern dataset data)))]
-            [towel-patterns (list-ec (:list tm to-match-list)
-                                     (:let matches (find-pattern-match tm pattern-list))
-                                     (not (zero? matches))
-                                     matches)])
-       (values (length towel-patterns)
-               (apply + towel-patterns))))))
+            [pattern-str design-str (car+cdr split-str)]
+            [design-list (remove string-null? (string-split (car design-str) #\newline))]
+            [pattern-list (map cadr (peg:tree (match-pattern dataset data)))]
+            [possible-designs (list-ec (:list d design-list)
+                                       (:let matches (find-pattern-match d pattern-list))
+                                       (not (zero? matches))
+                                       matches)])
+       (values (length possible-designs)
+               (apply + possible-designs))))))
